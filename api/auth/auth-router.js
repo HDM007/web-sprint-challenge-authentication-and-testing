@@ -76,7 +76,26 @@ router.post('/register', async (req, res, next) => {
       the response body should include a string exactly as follows: "username taken".
   */
 
-router.post('/login', async (req, res, next) => {
+router.post('/login', createToken, async (req, res) => {
+  let { username, password } = req.user;
+
+  try {
+    const savedUser = await User.findByUsername(username);
+    
+    if(savedUser) {
+      if (bcrypt.compareSync(password, savedUser.password)) {
+        const token = createToken(savedUser.username);
+        res.status(200).json({message: `welcome ${savedUser.username}`, token})
+      } else {
+        res.status(403).json({message: "invalid login credentials"})
+      }
+    } else {
+      res.status(403).json({message: "invalid login credentials"})
+    }
+    } catch (err){
+        res.status(500).json({message: "error"})
+    }
+});
   // res.end('implement login, please!');
   /*
     IMPLEMENT
@@ -101,6 +120,6 @@ router.post('/login', async (req, res, next) => {
     4- On FAILED login due to `username` not existing in the db, or `password` being incorrect,
       the response body should include a string exactly as follows: "invalid credentials".
   */
-});
+
 
 module.exports = router;
