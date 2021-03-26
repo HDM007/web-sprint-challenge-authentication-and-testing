@@ -24,7 +24,7 @@ router.post('/register', async (req, res, next) => {
   // res.end('implement register, please!');
   try {
 		const { username, password} = req.body
-		const user = await User.findBy({ username }).first()
+		const user = await User.findByUsername(username).first()
 
 		if (user) {
 			return res.status(409).json({
@@ -38,7 +38,7 @@ router.post('/register', async (req, res, next) => {
 			})
     }
 
-		const newUser = await User.add({
+		const newUser = await User.createUser({
 			username,
       password: await bcrypt.hash(password, 14),
 		})
