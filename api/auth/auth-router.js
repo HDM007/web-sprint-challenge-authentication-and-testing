@@ -1,4 +1,8 @@
 const router = require('express').Router();
+const Users = require("./auth-model");
+// use this for tokens 
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 router.post('/register', (req, res) => {
   res.end('implement register, please!');
