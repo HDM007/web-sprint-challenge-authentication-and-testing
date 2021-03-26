@@ -5,6 +5,33 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secret = require("../../config/secrets");
 
+// Middleware starts here
+
+function checkBody(req,res,next) {
+
+  const user = req.body;
+
+  if(!user || !user.username || !user.password) {
+    res.status(401).json({message:  "username and password required"})
+  } else {
+    req.user = user;
+    next();
+  }
+}
+
+function createToken(username){
+  const payload = {
+    username,
+  };
+  const options = {
+    expiresIn: "1h"
+  };
+  return jwt.sign(payload, secret.jwtSecret, options)
+
+}
+
+// Middleware ends here
+
 router.post('/register', (req, res) => {
   res.end('implement register, please!');
   /*
