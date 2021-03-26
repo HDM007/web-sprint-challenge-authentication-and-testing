@@ -1,23 +1,11 @@
 const router = require('express').Router();
-const Users = require("./auth-model");
+const User = require("./auth-model");
 // use this for tokens 
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const secret = require("../../config/secrets");
 
 // Middleware starts here
-
-function checkBody(req,res,next) {
-
-  const user = req.body;
-
-  if(!user || !user.username || !user.password) {
-    res.status(401).json({message:  "username and password required"})
-  } else {
-    req.user = user;
-    next();
-  }
-}
 
 function createToken(username){
   const payload = {
@@ -32,8 +20,36 @@ function createToken(username){
 
 // Middleware ends here
 
-router.post('/register', (req, res) => {
-  res.end('implement register, please!');
+router.post('/register', async (req, res, next) => {
+  // res.end('implement register, please!');
+  try {
+		const { username, password} = req.body
+		const user = await User.findBy({ username }).first()
+
+		if (user) {
+			return res.status(409).json({
+        message: "username taken",
+			})
+    }
+    
+    if(!username || !password) {
+      return res.status(409).json({
+				message: "username and password required",
+			})
+    }
+
+		const newUser = await User.add({
+			username,
+      password: await bcrypt.hash(password, 14),
+		})
+
+		res.status(201).json(newUser)
+    next()
+
+	} catch(err) {
+    next(err)
+  }
+	})
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
@@ -59,10 +75,9 @@ router.post('/register', (req, res) => {
     4- On FAILED registration due to the `username` being taken,
       the response body should include a string exactly as follows: "username taken".
   */
-});
 
-router.post('/login', (req, res) => {
-  res.end('implement login, please!');
+router.post('/login', async (req, res, next) => {
+  // res.end('implement login, please!');
   /*
     IMPLEMENT
     You are welcome to build additional middlewares to help with the endpoint's functionality.
