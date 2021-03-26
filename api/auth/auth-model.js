@@ -1,19 +1,20 @@
 const db = require('../../data/dbConfig.js');
 
 function getUser () {
-
+return db("users")
 }
 
-function findByUsername () {
-
+function findByUsername (username) {
+return db("users").where("username", username).first()
 }
 
-function findById () {
-
+function findById (id) {
+return db("users").where("id", id).first()
 }
 
-function createUser () {
-    
+async function createUser (user) {
+const [id] = await db("users").insert(user)
+return findById(id)
 }
 
 module.exports = {
